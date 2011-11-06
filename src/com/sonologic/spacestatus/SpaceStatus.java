@@ -25,6 +25,8 @@ import android.widget.TextView;
 
 public class SpaceStatus extends Activity {
 
+	private SpaceStatusPrefs prefs;
+	
 	private TextView logText;
 	private TextView lastChange;
 	private TextView statusText;
@@ -53,6 +55,8 @@ public class SpaceStatus extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		this.prefs = new SpaceStatusPrefs(this);
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 		//        WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -64,6 +68,8 @@ public class SpaceStatus extends Activity {
 		statusText=(TextView)findViewById(R.id.spacestatus);
 		updateFreq=(TextView)findViewById(R.id.showfreq);
 		
+		updateFreq.setText("Update every "+Long.toString(this.prefs.getUpdateInterval()/60000)+" min");
+		
 		statusText.setBackgroundColor(Color.GRAY);
 		statusText.setTextColor(Color.YELLOW);
 		logText.setText("Waiting for first update..");
@@ -74,7 +80,7 @@ public class SpaceStatus extends Activity {
 		
 		// initialize slider event
 		SeekBar seekbar = (SeekBar)findViewById(R.id.updatefreq);
-		seekbar.setProgress(5);
+		seekbar.setProgress((int)this.prefs.getUpdateInterval()/60000);
 		seekbar.setOnSeekBarChangeListener(seekbarListener);
 		
 
@@ -145,12 +151,14 @@ public class SpaceStatus extends Activity {
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
+	/*
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.mainmenu, menu);
 	    return true;
 	}
+	*/
 
 	
 }

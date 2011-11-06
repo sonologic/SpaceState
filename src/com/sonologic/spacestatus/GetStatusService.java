@@ -12,6 +12,7 @@ package com.sonologic.spacestatus;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -23,7 +24,7 @@ import android.util.Log;
  */
 public class GetStatusService extends Service {
 
-	private long UPDATE_INTERVAL = 1000*60*5;
+	private SpaceStatusPrefs prefs;
 
 	private Handler mHandler = new Handler();
 
@@ -34,6 +35,7 @@ public class GetStatusService extends Service {
 	public void onCreate() {
 		super.onCreate();
 
+		this.prefs = new SpaceStatusPrefs(this);
 		// updater listens for GETUPDATE intents, which can be used by the
 		// activity to force an update
 		updater=new StatusUpdater(this);
@@ -57,7 +59,7 @@ public class GetStatusService extends Service {
 		public void run() {
 			getUpdate();
 			mHandler.postAtTime(this,
-					SystemClock.uptimeMillis()+UPDATE_INTERVAL);
+					SystemClock.uptimeMillis()+getUpdateFrequency());
 		}
 	};
 
@@ -83,11 +85,11 @@ public class GetStatusService extends Service {
 	}
 
 	public long getUpdateFrequency() {
-		return this.UPDATE_INTERVAL;
+		return this.prefs.getUpdateInterval();
 	}
 
 	public void setUpdateFrequency(long f) {
-		this.UPDATE_INTERVAL=f*1000;
+		this.prefs.setUpdateInterval(f*1000);
 		this.stopUpdater();
 		this.startUpdater();
 	}
