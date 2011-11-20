@@ -7,8 +7,7 @@ import android.content.Intent;
 public class IntentReceiver extends BroadcastReceiver {
 
 	private SpaceStatus activity;
-	
-	
+
 	/**
 	 * @param activity
 	 */
@@ -17,12 +16,15 @@ public class IntentReceiver extends BroadcastReceiver {
 		this.activity = activity;
 	}
 
-
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if(intent.getAction().equals("com.sonologic.spacestatus.UPDATE")) {
-  		  SpaceStatusParcelable status = intent.getParcelableExtra("status");
-		  activity.updateStatus(status);
-		}	
+		if (intent.getAction().equals("com.sonologic.spacestatus.UPDATE")) {
+			SpaceStatusParcelable status = intent.getParcelableExtra("status");
+			activity.updateStatus(status);
+		}
+		if (intent.getAction().equals("com.sonologic.spacestatus.LISTUPDATE")) {
+			StatusDirectoryParcelable directory = intent.getParcelableExtra("directory");
+			activity.updateList(directory);
+		}
 	}
 }

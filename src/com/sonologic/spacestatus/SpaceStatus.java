@@ -14,10 +14,12 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.Time;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -31,9 +33,10 @@ public class SpaceStatus extends Activity {
 	private TextView lastChange;
 	private TextView statusText;
 	private TextView updateFreq;
+	private LinearLayout spaceList;
 
 	private final BroadcastReceiver receiver = new IntentReceiver(this);
-	private final IntentFilter filter = new IntentFilter("com.sonologic.spacestatus.UPDATE");
+	private final IntentFilter filter = new IntentFilter();
 
 	public void updateStatus(SpaceStatusParcelable status) {
 		Calendar c = Calendar.getInstance();
@@ -49,6 +52,39 @@ public class SpaceStatus extends Activity {
 		t.set(status.getLastchange()*1000);
 		lastChange.setText(getString(R.string.lastchange).concat(t.format(" %H:%M, %a %e %b")));
 	}
+	
+	public void updateList(StatusDirectoryParcelable directory) {
+		this.spaceList.removeAllViews();
+		
+		for(int i=0;i<directory.size();i++) {
+		  LinearLayout row = new LinearLayout(this);
+		  row.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		  row.setOrientation(LinearLayout.HORIZONTAL);
+		  
+		  CheckBox check = new CheckBox(this);
+		  check.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		  check.setChecked(this.prefs.isSubscribed(directory.get(i).getName()));
+		  check.setTag(directory.get(i).getName());
+		  check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			  public void onCheckedChanged(CompoundButton b, boolean checked) {
+				  CheckBox check = (CheckBox)b;
+				  if(checked) {
+					  ((SpaceStatus)b.getContext()).prefs.subscribe((String)check.getTag());
+				  } else {
+					  ((SpaceStatus)b.getContext()).prefs.unsubscribe((String)check.getTag());
+				  }
+			  }
+		  });
+		  row.addView(check);
+
+		  TextView child = new TextView(this);
+		  child.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		  child.setText(directory.get(i).getName());
+		  row.addView(child);
+		  
+		  this.spaceList.addView(row);
+		}
+	}
 
 	/** Called when the activity is first created. */
 	@Override
@@ -62,11 +98,16 @@ public class SpaceStatus extends Activity {
 		//        WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.main);
 
+		// initialize intent filter
+		this.filter.addAction("com.sonologic.spacestatus.UPDATE");
+		this.filter.addAction("com.sonologic.spacestatus.LISTUPDATE");
+		
 		// initialize text fields
 		logText=(TextView)findViewById(R.id.textview);
 		lastChange=(TextView)findViewById(R.id.lastchange);
 		statusText=(TextView)findViewById(R.id.spacestatus);
 		updateFreq=(TextView)findViewById(R.id.showfreq);
+		spaceList=(LinearLayout)findViewById(R.id.spacelist);
 		
 		updateFreq.setText("Update every "+Long.toString(this.prefs.getUpdateInterval()/60000)+" min");
 		
@@ -133,8 +174,10 @@ public class SpaceStatus extends Activity {
 	protected void onResume() {
 		super.onResume();
 		registerReceiver();
-		Intent i = new Intent("com.sonologic.spacestatus.GETUPDATE");
-		this.sendBroadcast(i);
+		Intent i1 = new Intent("com.sonologic.spacestatus.GETUPDATE");
+		this.sendBroadcast(i1);
+		Intent i2 = new Intent("com.sonologic.spacestatus.UPDATELIST");
+		this.sendBroadcast(i2);
 		// The activity has become visible (it is now "resumed").
 		//updateStatus();
 	}

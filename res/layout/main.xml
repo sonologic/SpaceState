@@ -33,4 +33,9 @@
 			 android:layout_width="fill_parent"
 			 android:onClick="onClickFreqSlider"
 			 android:max="119" />
+    <LinearLayout android:layout_width="fill_parent"
+    			  android:id="@+id/spacelist"
+    			  android:layout_height="wrap_content"
+    			  android:orientation="vertical">
+    </LinearLayout>			 
 </LinearLayout>

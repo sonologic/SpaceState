@@ -10,6 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -25,6 +26,7 @@ import org.json.JSONTokener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * @author gmc
@@ -45,15 +47,16 @@ public class StatusUpdater extends BroadcastReceiver {
 		if(intent.getAction().equals("com.sonologic.spacestatus.GETUPDATE")) {
 		  this.update();
 		}
+		if(intent.getAction().equals("com.sonologic.spacestatus.UPDATELIST")) {
+			this.updateList();
+		}
 		if(intent.getAction().equals("com.sonologic.spacestatus.SETFREQ")) {
 			  ((GetStatusService)this.context).setUpdateFrequency(
 					  intent.getIntExtra("f", 5) * 60 );
 		}
 	}
 
-	private void trustAllHosts() {
-		
-    	
+	private void trustAllHosts() {    	
         // Create a trust manager that does not validate certificate chains
         TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -107,6 +110,39 @@ public class StatusUpdater extends BroadcastReceiver {
 				i.putExtra("contentType",conn.getContentType());
 				i.putExtra("contentEncoding",conn.getContentEncoding());
 				context.sendBroadcast(i);
+			} finally {
+				conn.disconnect();
+			}
+        } catch(Exception E) {
+        	//tv.setText("Exception:"+E.toString());
+        }
+	}
+	
+	public void updateList() {
+		Log.i("spacestatus","update list");
+		try {
+			URL url = new URL("http://chasmcity.sonologic.nl/spacestatusdirectory.php");
+			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+			//conn.setHostnameVerifier(new NaiveHostnameVerifier());
+			try {
+				InputStream in = new BufferedInputStream(conn.getInputStream());
+				BufferedReader r = new BufferedReader(new InputStreamReader(in));
+				String page="";
+				String s=r.readLine();
+				while(s!=null) {
+					page+=s;
+					s=r.readLine();
+				} 
+
+				JSONObject json = (JSONObject) new JSONTokener(page).nextValue();
+				StatusDirectoryParcelable dir = new StatusDirectoryParcelable(json);
+
+				Intent i = new Intent("com.sonologic.spacestatus.LISTUPDATE");
+				i.putExtra("directory",dir);
+				context.sendBroadcast(i);
+			} catch(Exception E) {
+				throw E;
+				//Log.e("updateList",E.toString());
 			} finally {
 				conn.disconnect();
 			}

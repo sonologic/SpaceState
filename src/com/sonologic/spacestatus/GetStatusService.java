@@ -1,6 +1,6 @@
 /**
- *  The service runs in the background and periodically forces an
- *  update.
+ *  Runs in the background and periodically forces an update.
+ *  
  *  It creates the StatusUpdater, which does the actual request (and
  *  can be forced to fetch by sending the GETUPDATE intent.
  *  
@@ -12,7 +12,6 @@ package com.sonologic.spacestatus;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -40,6 +39,7 @@ public class GetStatusService extends Service {
 		// activity to force an update
 		updater=new StatusUpdater(this);
 		filter.addAction("com.sonologic.spacestatus.GETUPDATE");
+		filter.addAction("com.sonologic.spacestatus.UPDATELIST");
 		filter.addAction("com.sonologic.spacestatus.SETFREQ");
 		this.registerReceiver(updater, filter);
 
@@ -81,7 +81,8 @@ public class GetStatusService extends Service {
 		//System.out.println(s);
 		Log.i("spacestatus","updating..");
 
-		updater.update();	    
+		updater.update();	 
+		updater.updateList();
 	}
 
 	public long getUpdateFrequency() {

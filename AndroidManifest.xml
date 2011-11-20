@@ -12,6 +12,7 @@
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
         <action android:name="com.sonologic.spacestatus.UPDATE" />
+        
       </intent-filter>
       <meta-data android:name="android.appwidget.provider"
                android:resource="@xml/spacestatus_appwidget_info" />
@@ -25,6 +26,8 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="com.sonologic.spacestatus.GETUPDATE" />
+                <action android:name="com.sonologic.spacestatus.UPDATELIST" />
+                <action android:name="com.sonologic.spacestatus.LISTUPDATE" />
                 <action android:name="com.sonologic.spacestatus.SETFREQ" />
             </intent-filter>
             <service android:name=".spacestatus.GetStatusService"/>
