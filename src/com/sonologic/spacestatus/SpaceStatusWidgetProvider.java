@@ -10,6 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -20,6 +21,7 @@ public class SpaceStatusWidgetProvider extends AppWidgetProvider {
 
 	private RemoteViews views;
 	private boolean status = false;
+	private SpaceStatusPrefs prefs = null;
 
 	public void updateStatus(Context context) {
 		AppWidgetManager appWidgetManager = AppWidgetManager
@@ -45,11 +47,17 @@ public class SpaceStatusWidgetProvider extends AppWidgetProvider {
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		final int N = appWidgetIds.length;
 
+		if(prefs==null) prefs = new SpaceStatusPrefs(context);
+		
 		// Perform this loop procedure for each App Widget that belongs to this
 		// provider
-		for (int i = 0; i < N; i++) {
+		for (int i = 0; i < N; i++) {			
 			int appWidgetId = appWidgetIds[i];
 
+			String spacename = prefs.getWidgetData(appWidgetId);
+			
+			Log.d("com.sonologic.spacestatus","widget "+Integer.toString(appWidgetId)+" has space "+spacename);
+			
 			// create an intent to launch the SpaceStatus activity
 			Intent clickIntent = new Intent(context, SpaceStatus.class);
 			PendingIntent clickPI = PendingIntent.getActivity(context, 0,clickIntent, 0);
@@ -89,6 +97,8 @@ public class SpaceStatusWidgetProvider extends AppWidgetProvider {
 	@Override
 	public void onEnabled(Context context) {
 		super.onEnabled(context);
+		
+		
 
 		Intent svc = new Intent(context, GetStatusService.class);
 		context.startService(svc);
@@ -97,5 +107,16 @@ public class SpaceStatusWidgetProvider extends AppWidgetProvider {
 		Intent force = new Intent("com.sonologic.spacestatus.GETUPDATE");
 		context.sendBroadcast(force);
 	}
+
+	@Override
+	public void onDeleted(Context context, int[] appWidgetIds) {
+		super.onDeleted(context, appWidgetIds);
+		
+		for(int i=0;i<appWidgetIds.length;i++) {
+			prefs.rmWidgetData(appWidgetIds[i]);
+		}
+	}
+	
+
 
 }

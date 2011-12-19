@@ -47,7 +47,9 @@ public class SpaceStatusPrefs {
 	public List<String> getSubscriptions() {
 		String[] subs = this.prefs.getString("subscriptions", "").split(",");
 		List<String> newList = new ArrayList<String>();
-		for(int i=0;i<subs.length;i++) newList.add(subs[i]);
+		if(this.prefs.getString("subscriptions", "").length()>0) {
+			for(int i=0;i<subs.length;i++) newList.add(subs[i]);
+		}
 		return newList;
 	}
 	
@@ -65,7 +67,9 @@ public class SpaceStatusPrefs {
 		String [] spaces = this.prefs.getString("spacenames", "").split(",");
 		String [] urls = this.prefs.getString("spaceurls","").split(",");
 		List<Pair<String,String>> newList = new ArrayList<Pair<String,String>>();
-		for(int i=0;i<spaces.length;i++) newList.add(new Pair(spaces[i],urls[i]));
+		if(this.prefs.getString("spacenames", "").length()>0) {
+		  for(int i=0;i<spaces.length;i++) newList.add(new Pair(spaces[i],urls[i]));
+		}
 		return newList;
 	}
 	
@@ -112,6 +116,20 @@ public class SpaceStatusPrefs {
 	 */
 	public void setContext(Context context) {
 		this.context = context;
+	}
+
+	public void setWidgetData(int widgetId, String name) {
+		this.edit.putString("widget_"+Integer.toString(widgetId),name);
+		this.edit.commit();
+	}
+	
+	public String getWidgetData(int widgetId) {
+		return this.prefs.getString("widget_"+Integer.toString(widgetId), null);
+	}
+	
+	public void rmWidgetData(int widgetId) {
+		this.edit.remove("widget_"+Integer.toString(widgetId));
+		this.edit.commit();
 	}
 
 	
