@@ -24,6 +24,7 @@ public class IntentReceiver extends BroadcastReceiver {
 		}
 		if (intent.getAction().equals("com.sonologic.spacestatus.LISTUPDATE")) {
 			StatusDirectoryParcelable directory = intent.getParcelableExtra("directory");
+			activity.getPrefs().setSpaceList(directory);
 			activity.updateList(directory);
 		}
 	}

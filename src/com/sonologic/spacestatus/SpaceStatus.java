@@ -191,6 +191,14 @@ public class SpaceStatus extends Activity {
 		super.onPause();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public SpaceStatusPrefs getPrefs() {
+		return this.prefs;
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */

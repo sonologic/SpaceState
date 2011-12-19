@@ -1,0 +1,155 @@
+package com.sonologic.spacestatus;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class WidgetConfiguration extends Activity {
+	int widgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+
+	@Override
+	public void onCreate(Bundle icicle) {
+		  super.onCreate(icicle);
+
+		  // Set the result to CANCELED. This will cause the widget host to cancel
+			// out of the widget placement if they press the back button.
+			setResult(RESULT_CANCELED);
+
+			// Set the view layout resource to use.
+			setContentView(R.layout.widgetconf);
+
+			// Find the widget id from the intent.
+			Intent intent = getIntent();
+			Bundle extras = intent.getExtras();
+			if (extras != null) {
+				widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
+						AppWidgetManager.INVALID_APPWIDGET_ID);
+			}
+			
+			// If they gave us an intent without the widget id, just bail.
+			if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+				finish();
+			}
+
+			List<String> spacenames=new ArrayList<String>();
+			
+			Log.d("com.sonologic.spacestate","test");
+//			try {
+				SpaceStatusPrefs prefs = new SpaceStatusPrefs(this);
+				List<Pair<String, String>> spacelist = prefs.getSpaceList();
+				
+				Log.d("com.sonologic.spacestatus","space count: "+Integer.toString(spacelist.size()));
+
+				//LinearLayout spaceListView = (LinearLayout) findViewById(R.id.widgetconflist);
+
+				//spaceListView.removeAllViews();
+
+				for (Iterator<Pair<String, String>> i = spacelist.iterator(); i.hasNext();) {
+					Pair <String,String> item=i.next();
+					spacenames.add(item.first);
+				}
+//			} catch(Exception e) {
+//				Log.d("com.sonologic.spacestatus",e.toString());
+//			}
+				LinearLayout spaceListView = (LinearLayout) findViewById(R.id.widgetconflist);
+
+				spaceListView.removeAllViews();
+				
+		  ListView lv = new ListView(this);
+		  lv.setAdapter(new ArrayAdapter<String>(this, R.layout.widgetconf_item, spacenames));
+		  
+		  lv.setTextFilterEnabled(true);
+		  lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+		  
+
+		  
+
+		  lv.setOnItemClickListener(new OnItemClickListener() {
+		    public void onItemClick(AdapterView<?> parent, View view,
+		        int position, long id) {
+		      // When clicked, show a toast with the TextView text
+		      Toast.makeText(getApplicationContext(), ((TextView) view).getText(),
+		          Toast.LENGTH_SHORT).show();
+		    }
+		  });
+		  
+		  spaceListView.addView(lv);
+		  
+		/*super.onCreate(icicle);
+
+		// Set the result to CANCELED. This will cause the widget host to cancel
+		// out of the widget placement if they press the back button.
+		setResult(RESULT_CANCELED);
+
+		// Set the view layout resource to use.
+		setContentView(R.layout.widgetconf);
+
+		// Find the EditText
+		// mAppWidgetPrefix = (EditText)findViewById(R.id.appwidget_prefix);
+
+		// Bind the action for the save button.
+		// findViewById(R.id.save_button).setOnClickListener(mOnClickListener);
+
+		// Find the widget id from the intent.
+		Intent intent = getIntent();
+		Bundle extras = intent.getExtras();
+		if (extras != null) {
+			widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					AppWidgetManager.INVALID_APPWIDGET_ID);
+		}
+
+		// If they gave us an intent without the widget id, just bail.
+		if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+			finish();
+		}
+
+		Log.d("com.sonologic.spacestate","test");
+		try {
+			SpaceStatusPrefs prefs = new SpaceStatusPrefs(this);
+			List<Pair<String, String>> spacelist = prefs.getSpaceList();
+			
+			Log.d("com.sonologic.spacestatus","space count: "+Integer.toString(spacelist.size()));
+
+			LinearLayout spaceListView = (LinearLayout) findViewById(R.id.widgetconflist);
+
+			spaceListView.removeAllViews();
+
+			for (Iterator<Pair<String, String>> i = spacelist.iterator(); i.hasNext();) {
+				Log.d("com.sonologic.spacestatus","iterate");
+				Pair<String, String> item = i.next();
+				TextView child = new TextView(this);
+				child.setLayoutParams(new ViewGroup.LayoutParams(
+						ViewGroup.LayoutParams.FILL_PARENT,
+						ViewGroup.LayoutParams.WRAP_CONTENT));
+				child.setText(item.first);
+				spaceListView.addView(child);
+				Log.d("com.sonologic.spacestatus",item.first);
+				Log.d("com.sonologic.spacestatus",item.second);
+			}
+
+		} catch (Exception e) {
+			Log.d("com.sonologic.spacestate",e.toString());
+		}
+
+		// mAppWidgetPrefix.setText(loadTitlePref(ExampleAppWidgetConfigure.this,
+		// mAppWidgetId));
+*/
+	}
+
+}
