@@ -1,0 +1,100 @@
+<h1>HackerSpace Status API - rel0.11</h1>
+<address>Koen Martens &lt;gmc@hackerspaces.nl&gt;</address><address> </address>The HackerSpace Status API proposes a unified syntax to publish information about a hackerspace for consumption by javascript widgets, mobile apps and other scripts or programs. The API is flexible, and allows for custom extensions.
+
+The API is based on JSON, and defines the properties of the space status JSON object. In this specification, some fields are mandatory, whereas others are optional. A hackerspace implementing this API should at least provide the mandatory fields.
+
+Receivers of the object must be able to parse all mandatory fields, and may interpret the optional fields. The receiver may also choose to ignore optional fields.
+
+In addition to the fields defined below, a publisher is free to add any custom fields. It is recommended to start the field-names of custom fields with the string 'ext_', to make it clear the field is not part of the documented API. Consumers are not obligated to interpret any custom fields.
+<h2>Hosting considerations</h2>
+In order to be able to retrieve the object from within a javascript sandbox, the server of the JSON object should set the 'Access-Control-Allow-Origin' header with a value of '*'. Additionally, it might be beneficial to add a 'Cache-Control' header with a value of 'no-cache', to prevent browser caches from retaining old data.
+<h3>Space directory</h3>
+The space status directory can be found on:
+
+http://chasmcity.sonologic.nl/spacestatusdirectory.php
+
+To be included in this directory, please email the author of this document with your URL.
+<h2>Status object</h2>
+The JSON object has these fields:
+<ul>
+	<li>api (string, mandatory) - '0.11'</li>
+	<li>space (string, mandatory) - name of the hackerspace;</li>
+	<li>logo (string, mandatory) - url to a png, jpg or gif image;</li>
+	<li>icon (array, mandatory) - provides url's to 2 icons to use to depict 'open' and 'closed' status:</li>
+<ul>
+	<li>open (string, mandatory): url to a square png file with a max resolution of 100x100 pixels;</li>
+	<li>closed (string, mandatory): url to a square png file with a max resolution of 100x100 pixels;</li>
+</ul>
+	<li>url (string, mandatory) - url to the hackerspace homepage;</li>
+	<li>address (string, optional) - visiting address;</li>
+	<li>contact (object, optional) - has the following subfields:</li>
+<ul>
+	<li>phone (string, optional) - phone number (in the form of +CCNNNNNNNNN, where CC is the countrycode);</li>
+	<li>sip (string, optional) - sip uri (eg. 'sip:gmc@pbx.sonologic.net'</li>
+	<li>keymaster (string or array of strings, optional) - phone number, or phone numbers of people able to open the space (for spaces where not all members can unlock the door</li>
+	<li>irc (string, optional) - irc channel in the form of 'irc://freenode/#revspace';</li>
+	<li>twitter (string, optional) - twitter account in the form of '@brenno';</li>
+	<li>email (string, optional) - general email address;</li>
+	<li>ml (string, optional) - public mailing list address;</li>
+	<li>jabber (string, optional) - jabber chatbox;</li>
+	<li>.... - additional fields may be added if needed (but please let the author know, so it can be added to the spec in order to achieve consistency across implementations).</li>
+</ul>
+	<li>lat (float, optional) - latitude</li>
+	<li>lon (float, optional) - longitude</li>
+	<li>cam (array of strings, optional) - webcam url(s);</li>
+	<li>stream (array, optional) - object indexed by stream type with url to stream as value (eg { 'mp4':'http\/\/etc...','mjpg':'....'})</li>
+	<li>open (boolean, mandatory) - 'true' if the space is currently open, 'false' if not;</li>
+	<li>status (string, optional) - additional free-form string to specify the 'open' status (ie, 'open for public', 'members only', ...)</li>
+	<li>lastchange (long int, optional) - seconds since epoch of last change in the open field;</li>
+	<li>events (array, optional) - array of recent check-in/check-outs or other relevant events the space wants to share (such as the fire-alarm).</li>
+<ul>
+	<li>Each entry in the events array has the following fields:</li>
+<ul>
+	<li>name (string, mandatory) - name or nickname of person or object associated with this event;</li>
+	<li>type (string, mandatory) - 'check-in' or 'check-out' (other values may be specified, but receivers of the object are not obligated to be able to understand these)</li>
+	<li>t (long int, mandatory) - time since the epoch for this event</li>
+	<li>extra (string, optional) - additional information</li>
+</ul>
+</ul>
+</ul>
+An example JSON object implementing all of the above mandatory fields and a number of optional fields:
+<pre>{
+  "api":"0.11",
+  "space":"RevSpace",
+  "url":"https:\/\/revspace.nl",
+  "icon":{
+    "open":"https://revspace.nl/icon/open.png",
+    "closed":"https://revspace.nl/icon/closed.png"
+  },
+  "address":"Binckhorstlaan 172, 2595 BT Den Haag, The Netherlands",
+  "contact":{
+    "phone":"+31702127681",
+    "twitter":"@revspacenl",
+    "ml":"general@revspace.nl"
+  },
+  "cam":"http:\/\/cam1.revspace.nl\/",
+  "logo":"https:\/\/revspace.nl\/mediawiki\/RevspaceLogoOnGreen.png",
+  "open":true,
+  "lastchange":1320586506,
+  "events":[
+    {"name":"julian","type":"check-in","t":1320585844},
+    {"name":"zerocool","type":"check-in","t":1320536415},
+    {"name":"gmc","type":"check-in","t":1320534968},
+    {"name":"foobar","type":"check-in","t":1320528604}
+  ]
+}</pre>
+<h1>Applications</h1>
+<ul>
+	<li><a href="https://market.android.com/details?id=com.sonologic.spacestatus&amp;feature=search_result#?t=W251bGwsMSwxLDEsImNvbS5zb25vbG9naWMuc3BhY2VzdGF0dXMiXQ..">SpaceStatus</a> - android app, currently shows the status of RevSpace, next version will include a choice from the spaces in the directory service</li>
+	<li><a href="http://wilco.baanhofman.nl/station/spaces.html">Web Dashboard</a> - quickly implemented example of how to query and display space status from within the browser (ajax/JSON)</li>
+</ul>
+<h1>Changelog</h1>
+r0.11:
+- added 'icon' field
+r0.9:
+- added structured 'contact' field
+- moved phone no to 'contact' object
+r0.8:
+- add api version field (Stitch)
+- add optional status specification (Toba)
+- add implementation list (gmc)
