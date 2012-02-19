@@ -1,21 +1,26 @@
-<h1>HackerSpace Status API - rel0.11</h1>
-<address>Koen Martens &lt;gmc@hackerspaces.nl&gt;</address><address> </address>The HackerSpace Status API proposes a unified syntax to publish information about a hackerspace for consumption by javascript widgets, mobile apps and other scripts or programs. The API is flexible, and allows for custom extensions.
+<h1>HackerSpace Status API - rel0.12</h1>
+<address>Koen Martens &lt;gmc@hackerspaces.nl&gt;</address><p>The HackerSpace Status API proposes a unified syntax to publish information about a hackerspace for consumption by javascript widgets, mobile apps and other scripts or programs. The API is flexible, and allows for custom extensions.</p>
 
-The API is based on JSON, and defines the properties of the space status JSON object. In this specification, some fields are mandatory, whereas others are optional. A hackerspace implementing this API should at least provide the mandatory fields.
+<p>The API is based on JSON, and defines the properties of the space status JSON object. In this specification, some fields are mandatory, whereas others are optional. A hackerspace implementing this API should at least provide the mandatory fields.</p>
 
-Receivers of the object must be able to parse all mandatory fields, and may interpret the optional fields. The receiver may also choose to ignore optional fields.
+<p>Receivers of the object must be able to parse all mandatory fields, and may interpret the optional fields. The receiver may also choose to ignore optional fields.</p>
 
-In addition to the fields defined below, a publisher is free to add any custom fields. It is recommended to start the field-names of custom fields with the string 'ext_', to make it clear the field is not part of the documented API. Consumers are not obligated to interpret any custom fields.
+<p>In addition to the fields defined below, a publisher is free to add any custom fields. It is recommended to start the field-names of custom fields with the string 'ext_', to make it clear the field is not part of the documented API. Consumers are not obligated to interpret any custom fields.</p>
 <h2>Hosting considerations</h2>
-In order to be able to retrieve the object from within a javascript sandbox, the server of the JSON object should set the 'Access-Control-Allow-Origin' header with a value of '*'. Additionally, it might be beneficial to add a 'Cache-Control' header with a value of 'no-cache', to prevent browser caches from retaining old data.
+<p>In order to be able to retrieve the object from within a javascript sandbox, the server of the JSON object should set the 'Access-Control-Allow-Origin' header with a value of '*'. Additionally, it might be beneficial to add a 'Cache-Control' header with a value of 'no-cache', to prevent browser caches from retaining old data.</p>
+<p>Implementors of this specification may provide a discovery tag on the main page of their website, as such:
+<pre>
+&lt;link rel="space-api" href="https://revspace.nl/status/status.php" /&gt;
+</pre>
+<p>Spaces implementing this specification should by default provide the json string as the file /status.json in the root of their main website. For example: https://revspace.nl/status.json. If a discovery tag is present, this overrides the default location specified in this paragraph.</p>
 <h3>Space directory</h3>
-The space status directory can be found on:
+<p>The space status directory can be found on:
 
-http://chasmcity.sonologic.nl/spacestatusdirectory.php
+<a href="http://chasmcity.sonologic.nl/spacestatusdirectory.php">http://chasmcity.sonologic.nl/spacestatusdirectory.php</a>
 
-To be included in this directory, please email the author of this document with your URL.
+<p>To be included in this directory, please email the author of this document with your URL.</p>
 <h2>Status object</h2>
-The JSON object has these fields:
+<p>The JSON object has these fields:
 <ul>
 	<li>api (string, mandatory) - '0.11'</li>
 	<li>space (string, mandatory) - name of the hackerspace;</li>
@@ -56,10 +61,24 @@ The JSON object has these fields:
 	<li>extra (string, optional) - additional information</li>
 </ul>
 </ul>
+	<li>sensors (array of arrays, optional) - indexed by sensor type, where the following types have been defined explicitly:
+		<ul>
+			<li>temp (array of strings) - strings indexed by a mnemonic identifier, the string value should match the regular expression ^[-+]?[0-9]+(.[0-9]+)?[FCK]$</li>
+			<li>additional sensor types may be defined by the implementor, implementor is requested to share the definition for inclusion in this specification</li>
+		</ul>
+	</li>
+	<li>feeds (array of objects, optional) - one or more feeds (rss, atom, ical, ..), where each entry has the following fields:
+	<ul>
+		<li>name (string, mandatory) - mnemonic identifier (blog, news, calendar, ...)</li>
+		<li>type (string, optional) - mime-type of the feed (implementors should not rely on auto-detection of their feed type and are advised to provide this optional field)</li>
+		<li>url (string, mandatory) - url to the feed content</li>
+	</ul>
+	</li>
 </ul>
-An example JSON object implementing all of the above mandatory fields and a number of optional fields:
+</p><p>
+An example (and fictional) JSON object implementing all of the above mandatory fields and a number of optional fields:
 <pre>{
-  "api":"0.11",
+  "api":"0.12",
   "space":"RevSpace",
   "url":"https:\/\/revspace.nl",
   "icon":{
@@ -76,19 +95,34 @@ An example JSON object implementing all of the above mandatory fields and a numb
   "logo":"https:\/\/revspace.nl\/mediawiki\/RevspaceLogoOnGreen.png",
   "open":true,
   "lastchange":1320586506,
+  "sensors":[
+    {"temp":{"hacklab":"8.5C","handwerklokaal":"20.5C","lounge":"7.5C"}}
+  ],
+  "feeds":[
+    {"name":"blog","type":"application/rss+xml","url":"https://revspace.nl/blog.rss"},
+    {"name":"calendar","type":"text/calendar","url":"https://revspace.nl/revspace.ical"}
+  },
   "events":[
     {"name":"julian","type":"check-in","t":1320585844},
     {"name":"zerocool","type":"check-in","t":1320536415},
     {"name":"gmc","type":"check-in","t":1320534968},
     {"name":"foobar","type":"check-in","t":1320528604}
   ]
-}</pre>
+}</pre></p>
 <h1>Applications</h1>
 <ul>
 	<li><a href="https://market.android.com/details?id=com.sonologic.spacestatus&amp;feature=search_result#?t=W251bGwsMSwxLDEsImNvbS5zb25vbG9naWMuc3BhY2VzdGF0dXMiXQ..">SpaceStatus</a> - android app, currently shows the status of RevSpace, next version will include a choice from the spaces in the directory service</li>
 	<li><a href="http://wilco.baanhofman.nl/station/spaces.html">Web Dashboard</a> - quickly implemented example of how to query and display space status from within the browser (ajax/JSON)</li>
+	<li><a href="http://slopjong.de/2012/02/15/firefox-add-on-for-your-hackerspace-door-status/">Firefox add-on for your hackerspace door status</a></li>
 </ul>
 <h1>Changelog</h1>
+<pre>
+r0.12:
+- added firefox extension
+- added /status.json (https://github.com/sonologic/SpaceState/issues/1)
+- added discovery tag (https://github.com/sonologic/SpaceState/issues/2)
+- added sensor array (https://github.com/sonologic/SpaceState/issues/3)
+- added feed array (https://github.com/sonologic/SpaceState/issues/4)
 r0.11:
 - added 'icon' field
 r0.9:
@@ -98,3 +132,4 @@ r0.8:
 - add api version field (Stitch)
 - add optional status specification (Toba)
 - add implementation list (gmc)
+</pre>
