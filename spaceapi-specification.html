@@ -1,7 +1,9 @@
-<h1>HackerSpace Status API - rel0.12</h1>
+<h1>HackerSpace Status API - rel0.13-rc1</h1>
 <address>Koen Martens &lt;gmc@hackerspaces.nl&gt;</address><p>The HackerSpace Status API proposes a unified syntax to publish information about a hackerspace for consumption by javascript widgets, mobile apps and other scripts or programs. The API is flexible, and allows for custom extensions.</p>
 
 <p>The API is based on JSON, and defines the properties of the space status JSON object. In this specification, some fields are mandatory, whereas others are optional. A hackerspace implementing this API should at least provide the mandatory fields.</p>
+
+<p>A spacestate json endpoint can be checked for validity against this specification by using <a href="http://openspace.slopjong.de/">Slopjong's spaceapi validator</a>.
 
 <p>Receivers of the object must be able to parse all mandatory fields, and may interpret the optional fields. The receiver may also choose to ignore optional fields.</p>
 
@@ -107,7 +109,9 @@ An example (and fictional) JSON object implementing all of the above mandatory f
     {"name":"zerocool","type":"check-in","t":1320536415},
     {"name":"gmc","type":"check-in","t":1320534968},
     {"name":"foobar","type":"check-in","t":1320528604}
-  ]
+  ],
+  "lat":4.336982,
+  "lon":52.069826
 }</pre></p>
 <h1>Applications</h1>
 <ul>
@@ -117,6 +121,9 @@ An example (and fictional) JSON object implementing all of the above mandatory f
 </ul>
 <h1>Changelog</h1>
 <pre>
+r0.13:
+- added validator
+- add lat/lon floats to example
 r0.12:
 - added firefox extension
 - added /status.json (https://github.com/sonologic/SpaceState/issues/1)
